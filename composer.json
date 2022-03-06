@@ -1,0 +1,27 @@
+{
+    "name": "nwidart/sms",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Sms\\": ""
+        }
+    },
+    "require": {
+        "alibabacloud/darabonba-openapi": "^0.2.5",
+        "alibabacloud/dysmsapi-20170525": "2.0.9"
+    }
+}
