@@ -2,6 +2,7 @@
 
 namespace Modules\Sms\Http\Controllers\V1;
 
+use App\Exceptions\CodeException;
 use App\Http\Controllers\Controller;
 use Modules\Sms\Driver\AliyunSms;
 use Modules\Sms\Http\Requests\V1\SmsRequest;
@@ -19,8 +20,9 @@ class SmsController extends Controller
     public function loginCode(SmsRequest $request)
     {
         $code = $this->sendCode();
+
         // 存入redis，默认验证过期时长 5 分钟
-        LoginCodeRedis::setex($request->phone, 360, $code);
+        LoginCodeRedis::setex($request->phone, 5 * 60, $code);
 
         return success();
     }
@@ -33,7 +35,7 @@ class SmsController extends Controller
      */
     public static function checkLoginCode($phone, $code)
     {
-        if (LoginCodeRedis::get($phone) === $code) {
+        if (LoginCodeRedis::get($phone) == $code) {
             LoginCodeRedis::del($phone);
             return true;
         } else {
@@ -79,7 +81,8 @@ class SmsController extends Controller
      */
     private function sendCode()
     {
-        $phone = request('phone');
+        $phone = request()->input('phone');
+
         // 生成验证码
         $code = mt_rand(100000, 999999);
         $result = AliyunSms::send($phone, $code);
@@ -88,12 +91,12 @@ class SmsController extends Controller
 
         if ($resultMessage !== 'OK') {
             if ($resultCode === 'isv.BUSINESS_LIMIT_CONTROL') {
-                return error('sms::code.7001');
+                throw new CodeException('sms::code.7001');
             }
             if ($resultCode === 'isv.MOBILE_NUMBER_ILLEGAL') {
-                return error('sms::code.7002');
+                throw new CodeException('sms::code.7002');
             }
-            return error('sms::code.7003');
+            throw new CodeException('sms::code.7003');
         }
 
         return $code;

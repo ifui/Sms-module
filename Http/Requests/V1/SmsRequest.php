@@ -2,6 +2,7 @@
 
 namespace Modules\Sms\Http\Requests\V1;
 
+use App\Rules\Phone;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SmsRequest extends FormRequest
@@ -24,7 +25,7 @@ class SmsRequest extends FormRequest
     public function rules()
     {
         return [
-            'phone' => 'required|digits:11',
+            'phone' => ['required', new Phone()],
         ];
     }
 }
