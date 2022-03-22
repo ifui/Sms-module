@@ -53,7 +53,7 @@ class SmsController extends Controller
     {
         $code = $this->sendCode();
         // 存入redis，默认验证过期时长 5 分钟
-        RegisterCodeRedis::setex($request->phone, 360, $code);
+        RegisterCodeRedis::setex($request->phone, 5 * 60, $code);
 
         return success();
     }
@@ -66,7 +66,7 @@ class SmsController extends Controller
      */
     public static function checkRegisterCode($phone, $code)
     {
-        if (RegisterCodeRedis::get($phone) === $code) {
+        if (RegisterCodeRedis::get($phone) == $code) {
             RegisterCodeRedis::del($phone);
             return true;
         } else {
@@ -85,6 +85,12 @@ class SmsController extends Controller
 
         // 生成验证码
         $code = mt_rand(100000, 999999);
+
+        // 判断是否是测试环境
+        if (app()->runningUnitTests()) {
+            return $code;
+        }
+
         $result = AliyunSms::send($phone, $code);
         $resultMessage = $result->body->message;
         $resultCode = $result->body->code;
