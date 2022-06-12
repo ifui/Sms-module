@@ -4,6 +4,7 @@ namespace Modules\Sms\Http\Controllers\V1;
 
 use App\Exceptions\CodeException;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Modules\Sms\Driver\AliyunSms;
 use Modules\Sms\Http\Requests\V1\SmsRequest;
 use Modules\Sms\Redis\LoginCodeRedis;
@@ -15,7 +16,8 @@ class SmsController extends Controller
      * 请求登录验证码
      *
      * @param SmsRequest $request
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
+     * @throws CodeException
      */
     public function loginCode(SmsRequest $request)
     {
@@ -30,7 +32,8 @@ class SmsController extends Controller
     /**
      * 检查登录验证码
      *
-     * @param SmsRequest $request
+     * @param $phone
+     * @param $code
      * @return Boolean
      */
     public static function checkLoginCode($phone, $code)
@@ -47,7 +50,8 @@ class SmsController extends Controller
      * 注册验证码发送
      *
      * @param SmsRequest $request
-     * @return void
+     * @return JsonResponse
+     * @throws CodeException
      */
     public function registerCode(SmsRequest $request)
     {
@@ -61,7 +65,8 @@ class SmsController extends Controller
     /**
      * 检查注册验证码
      *
-     * @param SmsRequest $request
+     * @param $phone
+     * @param $code
      * @return Boolean
      */
     public static function checkRegisterCode($phone, $code)
@@ -78,6 +83,7 @@ class SmsController extends Controller
      * 通用方法：发送验证码
      *
      * @return string code
+     * @throws CodeException
      */
     private function sendCode()
     {
@@ -91,7 +97,9 @@ class SmsController extends Controller
             return $code;
         }
 
-        $result = AliyunSms::send($phone, $code);
+        $result = AliyunSms::send($phone, [
+            'code' => $code
+        ]);
         $resultMessage = $result->body->message;
         $resultCode = $result->body->code;
 

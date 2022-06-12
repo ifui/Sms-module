@@ -4,6 +4,7 @@ namespace Modules\Sms\Driver;
 
 use AlibabaCloud\SDK\Dysmsapi\V20170525\Dysmsapi;
 use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\SendSmsRequest;
+use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\SendSmsResponse;
 use Darabonba\OpenApi\Models\Config;
 
 class AliyunSms
@@ -29,17 +30,15 @@ class AliyunSms
      * 发送短信
      *
      * @param int $phone
-     * @param int $code
-     * @return AlibabaCloud\SDK\Dysmsapi\V20170525\Models\SendSmsResponse
+     * @param array $params
+     * @return SendSmsResponse
      */
-    public static function send($phone, $code)
+    public static function send(int $phone, array $params)
     {
         $client = self::createClient();
         $sendSmsRequest = new SendSmsRequest([
             "phoneNumbers" => $phone,
-            "templateParam" => json_encode([
-                'code' => $code,
-            ]),
+            "templateParam" => json_encode($params),
             "signName" => config('sms.aliyun.signName'),
             "templateCode" => config('sms.aliyun.templateCode'),
         ]);
