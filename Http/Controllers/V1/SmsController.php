@@ -82,7 +82,7 @@ class SmsController extends Controller
     /**
      * 通用方法：发送验证码
      *
-     * @return string code
+     * @return int code
      * @throws CodeException
      */
     private function sendCode()
@@ -97,8 +97,13 @@ class SmsController extends Controller
             return $code;
         }
 
-        $result = AliyunSms::send($phone, [
-            'code' => $code
+        $result = AliyunSms::send([
+            "phoneNumbers" => $phone,
+            "templateParam" => json_encode([
+                'code' => $code
+            ]),
+            "signName" => config('sms.aliyun.signName'),
+            "templateCode" => config('sms.aliyun.templateCode'),
         ]);
         $resultMessage = $result->body->message;
         $resultCode = $result->body->code;
