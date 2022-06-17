@@ -28,20 +28,22 @@ class AliyunSms
 
     /**
      * 发送短信
+     * config参考：
+     * [
+     * "phoneNumbers" => $phone,
+     * "templateParam" => json_encode($params),
+     * "signName" => config('sms.aliyun.signName'),
+     * "templateCode" => config('sms.aliyun.templateCode'),
+     * ]
      *
-     * @param int $phone
-     * @param array $params
+     * @param array $config
      * @return SendSmsResponse
+     * @example
      */
-    public static function send(int $phone, array $params)
+    public static function send(array $config)
     {
         $client = self::createClient();
-        $sendSmsRequest = new SendSmsRequest([
-            "phoneNumbers" => $phone,
-            "templateParam" => json_encode($params),
-            "signName" => config('sms.aliyun.signName'),
-            "templateCode" => config('sms.aliyun.templateCode'),
-        ]);
+        $sendSmsRequest = new SendSmsRequest($config);
         return $client->sendSms($sendSmsRequest);
     }
 }
